@@ -1680,12 +1680,12 @@
         /* ═══════════════════════════════════════════
            DRAG & DROP (Long-press to drag, scroll-friendly)
            ═══════════════════════════════════════════ */
-        const HOLD_DELAY = 300; // ms to hold before drag activates
+        const HOLD_DELAY = 300; // ms a presionar antes de activar el arrastre
 
         function attachDragBehavior(card) {
             let startX = 0, startY = 0;
             let holdTimer = null;
-            let dragReady = false;  // true after long-press fires
+            let dragReady = false;  // Se activa tras el long-press
             let pointerId = null;
 
             card.addEventListener('pointerdown', (e) => {
@@ -1700,20 +1700,23 @@
                 hasDragged = false;
                 dragReady = false;
 
-                // Start long-press timer — do NOT capture pointer yet
+                // Iniciamos temporizador de espera activa sin bloquear el scroll del navegador aún
                 clearTimeout(holdTimer);
                 holdTimer = setTimeout(() => {
                     if (dragging !== card) return;
                     dragReady = true;
-                    // Now capture pointer & lock touch-action
+                    
+                    // Capturamos el puntero y bloqueamos el touch-action nativo para arrastrar libremente
                     try { card.setPointerCapture(pointerId); } catch(ex) {}
                     card.style.touchAction = 'none';
+                    
                     const rect = card.getBoundingClientRect();
                     dragOffsetX = startX - rect.left;
                     dragOffsetY = startY - rect.top;
                     card.style.width = `${rect.width}px`;
                     card.style.transition = 'none';
-                    // Visual feedback: slight lift
+                    
+                    // Feedback visual instantáneo de IHC: la tarjeta flota
                     card.style.transform = 'scale(1.03)';
                     card.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.55), 0 20px 40px rgba(52,64,84,0.14)';
                     haptic(25);
@@ -1723,19 +1726,19 @@
             card.addEventListener('pointermove', (e) => {
                 if (dragging !== card) return;
 
-                // If drag not yet activated, check if user is scrolling
+                // Si el modo arrastre no ha despertado, verificamos si el usuario solo está haciendo scroll
                 if (!dragReady) {
                     const dx = Math.abs(e.clientX - startX);
                     const dy = Math.abs(e.clientY - startY);
                     if (dx > 8 || dy > 8) {
-                        // User is scrolling — cancel hold, let browser handle it
+                        // El usuario está escrolleando la app de forma normal -> cancelamos el arrastre
                         clearTimeout(holdTimer);
                         dragging = null;
                     }
                     return;
                 }
 
-                // Drag is active — move the card
+                // El arrastre está oficialmente activo: movemos el contenedor
                 if (!hasDragged) {
                     hasDragged = true;
                     const rect = card.getBoundingClientRect();
@@ -1757,8 +1760,8 @@
                 dragging = null;
                 card.style.touchAction = '';
 
+                // Si se soltó el dedo antes del delay o no se llegó a desplazar, se procesa como un CLICK normal
                 if (!dragReady || !hasDragged) {
-                    // TAP → show confirm
                     resetCard(card);
                     showConfirm(card);
                     return;
@@ -1780,7 +1783,7 @@
                     return;
                 }
 
-                // Snap back with spring animation
+                // Si se suelta fuera del vórtice, regresa con una animación elástica limpia
                 card.style.transition = 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)';
                 resetCard(card);
             });
