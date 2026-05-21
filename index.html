@@ -329,19 +329,105 @@
     </div>
 
     <script>
+        // --- CÓDIGO JS CORREGIDO PARA ARRASTRE TÁCTIL (TOUCH DRAG & DROP) ---
+        
         const cards = document.querySelectorAll('.task-card');
+        const vortex = document.getElementById('focusVortex');
         const focusView = document.getElementById('focusView');
         const pauseView = document.getElementById('pauseView');
         const activeTaskTitle = document.getElementById('activeTaskTitle');
         const countdownDisplay = document.getElementById('countdownDisplay');
+        
         let timerInterval = null;
+        let currentDraggedCard = null;
+        let initialX, initialY;
 
+        // --- LÓGICA DE ARRASTRE TÁCTIL (MOBILE DRAG) ---
         cards.forEach(card => {
-            card.addEventListener('click', () => {
-                startFocusSession(card.innerText);
+            // 1. Detectar cuando el dedo toca la tarea
+            card.addEventListener('touchstart', (e) => {
+                currentDraggedCard = card;
+                const touch = e.touches[0];
+                initialX = touch.clientX;
+                initialY = touch.clientY;
+                
+                // Preparar la tarjeta visualmente para el arrastre
+                card.style.transition = 'none'; // Quitar animaciones mientras arrastramos
+                card.style.zIndex = '1000'; // Asegurar que flote sobre todo
+                card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
+            });
+
+            // 2. Detectar el movimiento del dedo (Arrastrar)
+            card.addEventListener('touchmove', (e) => {
+                if (!currentDraggedCard) return;
+                e.preventDefault(); // Prevenir que la página haga scroll
+
+                const touch = e.touches[0];
+                const currentX = touch.clientX;
+                const currentY = touch.clientY;
+
+                // Calcular cuánto se ha movido el dedo desde el inicio
+                const diffX = currentX - initialX;
+                const diffY = currentY - initialY;
+
+                // Mover la tarjeta visualmente siguiendo el dedo
+                card.style.transform = `translate(${diffX}px, ${diffY}px) scale(1.02)`;
+
+                // --- DETECTAR SI ESTAMOS SOBRE EL VÓRTICE ---
+                const vortexRect = vortex.getBoundingClientRect();
+                
+                // Comprobar si el dedo actual está dentro de los límites del vórtice
+                if (currentX > vortexRect.left && currentX < vortexRect.right &&
+                    currentY > vortexRect.top && currentY < vortexRect.bottom) {
+                    vortex.style.backgroundColor = '#f1f5f9'; // Iluminar vórtice
+                    vortex.style.borderColor = '#818cf8';
+                } else {
+                    vortex.style.backgroundColor = 'transparent'; // Apagar vórtice
+                    vortex.style.borderColor = '#cbd5e1';
+                }
+            });
+
+            // 3. Detectar cuando el dedo se levanta (Soltar)
+            card.addEventListener('touchend', (e) => {
+                if (!currentDraggedCard) return;
+
+                const touch = e.changedTouches[0];
+                const finalX = touch.clientX;
+                const finalY = touch.clientY;
+
+                const vortexRect = vortex.getBoundingClientRect();
+                vortex.style.backgroundColor = 'transparent'; // Apagar vórtice siempre
+                vortex.style.borderColor = '#cbd5e1';
+
+                // --- COMPROBAR SI SOLTAMOS DENTRO DEL VÓRTICE ---
+                if (finalX > vortexRect.left && finalX < vortexRect.right &&
+                    finalY > vortexRect.top && finalY < vortexRect.bottom) {
+                    
+                    // ¡ÉXITO! Iniciar sesión de enfoque
+                    startFocusSession(card.innerText);
+                    
+                    // Resetear posición de la tarjeta instantáneamente (estará oculta atrás)
+                    resetCardPosition(card);
+                } else {
+                    // FALLO: Animar la tarjeta de vuelta a su lugar original
+                    card.style.transition = 'transform 0.4s ease-out';
+                    card.style.transform = 'translate(0px, 0px) scale(1)';
+                    setTimeout(() => resetCardPosition(card), 400); // Resetear estilos tras animación
+                }
+
+                currentDraggedCard = null;
             });
         });
 
+        // Función para limpiar los estilos de arrastre de la tarjeta
+        function resetCardPosition(card) {
+            card.style.transition = '';
+            card.style.zIndex = '';
+            card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)';
+            if(!currentDraggedCard) card.style.transform = ''; 
+        }
+
+        // --- RESTO DE LÓGICA DEL MVP (TEMPORIZADOR) ---
         function startFocusSession(taskTitle) {
             activeTaskTitle.innerText = taskTitle;
             focusView.style.display = 'flex';
@@ -349,6 +435,7 @@
             let seconds = 15; 
             countdownDisplay.innerText = "00:15";
             
+            clearInterval(timerInterval); // Asegurar que no haya otro timer corriendo
             timerInterval = setInterval(() => {
                 seconds--;
                 countdownDisplay.innerText = `00:${seconds < 10 ? '0' : ''}${seconds}`;
