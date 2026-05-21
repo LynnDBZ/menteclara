@@ -22,7 +22,6 @@
             color: #0f172a;
         }
 
-        /* Contenedor emulador móvil */
         .mobile-container {
             width: 100%;
             max-width: 412px;
@@ -33,10 +32,8 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.03);
         }
 
-        /* Barra de estado simulada superior */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -54,7 +51,6 @@
             align-items: center;
         }
 
-        /* Icono de Perfil de Usuario */
         .profile-avatar {
             width: 42px;
             height: 42px;
@@ -76,7 +72,6 @@
             stroke-linejoin: round;
         }
 
-        /* Textos Principales */
         h1 {
             font-size: 26px;
             font-weight: 700;
@@ -92,7 +87,6 @@
             font-weight: 400;
         }
 
-        /* Contenedor de Lista de Tareas */
         .tasks-list {
             display: flex;
             flex-direction: column;
@@ -100,7 +94,6 @@
             margin-bottom: 32px;
         }
 
-        /* Componente de Tarjeta de Tarea */
         .task-card {
             width: 100%;
             padding: 16px 20px;
@@ -109,35 +102,31 @@
             font-weight: 500;
             text-align: center;
             color: #1e293b;
-            cursor: grab;
-            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
             user-select: none;
-            touch-action: none;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
 
         .task-card:active {
-            cursor: grabbing;
             transform: scale(0.98);
         }
 
-        /* Variaciones de Estrés / Carga Mental */
         .task-high {
-            background-color: #ffedd5; /* Naranja pastel */
+            background-color: #ffedd5;
             border: 1px solid #fed7aa;
         }
 
         .task-medium {
-            background-color: #fef9c3; /* Amarillo pastel */
+            background-color: #fef9c3;
             border: 1px solid #fef08a;
         }
 
         .task-low {
-            background-color: #dcfce7; /* Verde menta pastel */
+            background-color: #dcfce7;
             border: 1px solid #bbf7d0;
         }
 
-        /* Zona de Arrastre (Focus Vortex) */
         .focus-vortex {
             width: 100%;
             border: 1.5px dashed #cbd5e1;
@@ -151,12 +140,6 @@
             margin-top: auto;
             margin-bottom: 40px;
             background-color: transparent;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .vortex-active {
-            background-color: #f1f5f9;
-            border-color: #6366f1;
         }
 
         .vortex-title {
@@ -172,7 +155,6 @@
             margin-top: 4px;
         }
 
-        /* Botón de Acción Flotante (+) */
         .fab-button {
             position: absolute;
             bottom: 24px;
@@ -186,12 +168,7 @@
             align-items: center;
             box-shadow: 0 4px 14px rgba(129, 140, 248, 0.4);
             cursor: pointer;
-            transition: transform 0.2s;
             border: none;
-        }
-
-        .fab-button:active {
-            transform: scale(0.92);
         }
 
         .fab-button svg {
@@ -204,14 +181,13 @@
             stroke-linejoin: round;
         }
 
-        /* Vista del Temporizador de Enfoque (Oculto inicialmente) */
         .focus-view {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #0f172a; /* Fondo oscuro total para foco profundo */
+            background-color: #0f172a;
             padding: 40px 24px;
             display: none;
             flex-direction: column;
@@ -233,7 +209,6 @@
             font-size: 42px;
             font-weight: 700;
             margin-bottom: 24px;
-            animation: pulse-border 2s infinite;
         }
 
         .current-task-title {
@@ -259,14 +234,8 @@
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
 
-        .btn-cancel:active {
-            background-color: #334155;
-        }
-
-        /* Vista de Pausa Mindful (Oculta) */
         .pause-view {
             position: absolute;
             top: 0;
@@ -300,16 +269,9 @@
             margin-bottom: 48px;
         }
 
-        /* Animaciones */
         @keyframes breathe {
             0%, 100% { transform: scale(1); background-color: rgba(129, 140, 248, 0.15); }
-            50% { transform: scale(1.4); background-color: rgba(192, 132, 252, 0.25); }
-        }
-
-        @keyframes pulse-border {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            50% { transform: scale(1.3); background-color: rgba(192, 132, 252, 0.25); }
         }
     </style>
 </head>
@@ -335,9 +297,9 @@
         <div class="subtitle">Respira. Vamos a avanzar un paso a la vez.</div>
 
         <div class="tasks-list" id="tasksList">
-            <div class="task-card task-high" draggable="true" id="task1">Avance Proyecto Final IHC</div>
-            <div class="task-card task-medium" draggable="true" id="task2">Estudiar para PC2</div>
-            <div class="task-card task-low" draggable="true" id="task3">Lectura Obligatoria Semana 12</div>
+            <div class="task-card task-high" id="task1">Avance Proyecto Final IHC</div>
+            <div class="task-card task-medium" id="task2">Estudiar para PC2</div>
+            <div class="task-card task-low" id="task3">Lectura Obligatoria Semana 12</div>
         </div>
 
         <div class="focus-vortex" id="focusVortex">
@@ -367,56 +329,23 @@
     </div>
 
     <script>
-        // Lógica interactiva de Arrastre (Drag and Drop) y Ciclos del Temporizador del MVP
         const cards = document.querySelectorAll('.task-card');
-        const vortex = document.getElementById('focusVortex');
         const focusView = document.getElementById('focusView');
         const pauseView = document.getElementById('pauseView');
         const activeTaskTitle = document.getElementById('activeTaskTitle');
         const countdownDisplay = document.getElementById('countdownDisplay');
-        
-        let draggedTaskText = "";
         let timerInterval = null;
 
-        // Soporte para interacción de arrastre en escritorio
         cards.forEach(card => {
-            card.addEventListener('dragstart', (e) => {
-                draggedTaskText = card.innerText;
-                vortex.classList.add('vortex-active');
-            });
-
-            card.addEventListener('dragend', () => {
-                vortex.classList.remove('vortex-active');
-            });
-            
-            // Soporte táctil básico para celulares (Hacer clic abre el flujo directamente en móvil)
             card.addEventListener('click', () => {
                 startFocusSession(card.innerText);
             });
-        });
-
-        vortex.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            vortex.classList.add('vortex-active');
-        });
-
-        vortex.addEventListener('dragleave', () => {
-            vortex.classList.remove('vortex-active');
-        });
-
-        vortex.addEventListener('drop', (e) => {
-            e.preventDefault();
-            vortex.classList.remove('vortex-active');
-            if(draggedTaskText) {
-                startFocusSession(draggedTaskText);
-            }
         });
 
         function startFocusSession(taskTitle) {
             activeTaskTitle.innerText = taskTitle;
             focusView.style.display = 'flex';
             
-            // Simulación acelerada del temporizador para la demo (Cuenta regresiva rápida)
             let seconds = 15; 
             countdownDisplay.innerText = "00:15";
             
@@ -447,8 +376,3 @@
     </script>
 </body>
 </html>
-"""
-
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(html_content)
-print("Archivo index.html generado con éxito.")
