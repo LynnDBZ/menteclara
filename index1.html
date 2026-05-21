@@ -1,0 +1,454 @@
+html_content = """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MenteClara MVP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        /* Contenedor emulador móvil */
+        .mobile-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            background-color: #ffffff;
+            position: relative;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.03);
+        }
+
+        /* Barra de estado simulada superior */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 24px;
+            padding: 0 4px;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* Icono de Perfil de Usuario */
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Textos Principales */
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        /* Contenedor de Lista de Tareas */
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* Componente de Tarjeta de Tarea */
+        .task-card {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            color: #1e293b;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            user-select: none;
+            touch-action: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .task-card:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        /* Variaciones de Estrés / Carga Mental */
+        .task-high {
+            background-color: #ffedd5; /* Naranja pastel */
+            border: 1px solid #fed7aa;
+        }
+
+        .task-medium {
+            background-color: #fef9c3; /* Amarillo pastel */
+            border: 1px solid #fef08a;
+        }
+
+        .task-low {
+            background-color: #dcfce7; /* Verde menta pastel */
+            border: 1px solid #bbf7d0;
+        }
+
+        /* Zona de Arrastre (Focus Vortex) */
+        .focus-vortex {
+            width: 100%;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 24px;
+            padding: 40px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: auto;
+            margin-bottom: 40px;
+            background-color: transparent;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .vortex-active {
+            background-color: #f1f5f9;
+            border-color: #6366f1;
+        }
+
+        .vortex-title {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .vortex-subtitle {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Botón de Acción Flotante (+) */
+        .fab-button {
+            position: absolute;
+            bottom: 24px;
+            right: 20px;
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 14px rgba(129, 140, 248, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none;
+        }
+
+        .fab-button:active {
+            transform: scale(0.92);
+        }
+
+        .fab-button svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Vista del Temporizador de Enfoque (Oculto inicialmente) */
+        .focus-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a; /* Fondo oscuro total para foco profundo */
+            padding: 40px 24px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            z-index: 10;
+        }
+
+        .timer-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 4px solid #334155;
+            border-top-color: #818cf8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            animation: pulse-border 2s infinite;
+        }
+
+        .current-task-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+            color: #f1f5f9;
+        }
+
+        .focus-status-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 48px;
+        }
+
+        .btn-cancel {
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-cancel:active {
+            background-color: #334155;
+        }
+
+        /* Vista de Pausa Mindful (Oculta) */
+        .pause-view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+            padding: 40px 24px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 11;
+        }
+
+        .breathing-ring {
+            width: 120px;
+            height: 120px;
+            background-color: rgba(129, 140, 248, 0.15);
+            border-radius: 50%;
+            margin-bottom: 40px;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        .pause-message {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e1b4b;
+            line-height: 1.4;
+            margin-bottom: 48px;
+        }
+
+        /* Animaciones */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); background-color: rgba(129, 140, 248, 0.15); }
+            50% { transform: scale(1.4); background-color: rgba(192, 132, 252, 0.25); }
+        }
+
+        @keyframes pulse-border {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="16" height="10" x="2" y="7" rx="2"/><path d="M22 11v2"/></svg>
+            </div>
+        </div>
+
+        <div class="profile-avatar">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+        </div>
+
+        <h1>Hola, Estudiante</h1>
+        <div class="subtitle">Respira. Vamos a avanzar un paso a la vez.</div>
+
+        <div class="tasks-list" id="tasksList">
+            <div class="task-card task-high" draggable="true" id="task1">Avance Proyecto Final IHC</div>
+            <div class="task-card task-medium" draggable="true" id="task2">Estudiar para PC2</div>
+            <div class="task-card task-low" draggable="true" id="task3">Lectura Obligatoria Semana 12</div>
+        </div>
+
+        <div class="focus-vortex" id="focusVortex">
+            <div class="vortex-title">Arrastra aquí para enfocarte</div>
+            <div class="vortex-subtitle">(Focus Vortex)</div>
+        </div>
+
+        <button class="fab-button" onclick="alert('Funcionalidad MVP: Registro Exprés activado en simulación')">
+            <svg viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+        </button>
+
+        <div class="focus-view" id="focusView">
+            <div class="current-task-title" id="activeTaskTitle">Tarea Activa</div>
+            <div class="focus-status-text">Bloque de Enfoque Activo</div>
+            <div class="timer-circle" id="countdownDisplay">15:00</div>
+            <button class="btn-cancel" id="btnCancelFocus">Terminar Sesión</button>
+        </div>
+
+        <div class="pause-view" id="pauseView">
+            <div class="breathing-ring"></div>
+            <div class="pause-message">Inhala... Exhala...<br>Tómate 3 minutos para estirarte.<br>Yo cuido tu tiempo.</div>
+            <button class="btn-cancel" style="background-color: #e2e8f0; color: #475569; border: none;" id="btnEndPause">Volver al Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        // Lógica interactiva de Arrastre (Drag and Drop) y Ciclos del Temporizador del MVP
+        const cards = document.querySelectorAll('.task-card');
+        const vortex = document.getElementById('focusVortex');
+        const focusView = document.getElementById('focusView');
+        const pauseView = document.getElementById('pauseView');
+        const activeTaskTitle = document.getElementById('activeTaskTitle');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+        
+        let draggedTaskText = "";
+        let timerInterval = null;
+
+        // Soporte para interacción de arrastre en escritorio
+        cards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                draggedTaskText = card.innerText;
+                vortex.classList.add('vortex-active');
+            });
+
+            card.addEventListener('dragend', () => {
+                vortex.classList.remove('vortex-active');
+            });
+            
+            // Soporte táctil básico para celulares (Hacer clic abre el flujo directamente en móvil)
+            card.addEventListener('click', () => {
+                startFocusSession(card.innerText);
+            });
+        });
+
+        vortex.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            vortex.classList.add('vortex-active');
+        });
+
+        vortex.addEventListener('dragleave', () => {
+            vortex.classList.remove('vortex-active');
+        });
+
+        vortex.addEventListener('drop', (e) => {
+            e.preventDefault();
+            vortex.classList.remove('vortex-active');
+            if(draggedTaskText) {
+                startFocusSession(draggedTaskText);
+            }
+        });
+
+        function startFocusSession(taskTitle) {
+            activeTaskTitle.innerText = taskTitle;
+            focusView.style.display = 'flex';
+            
+            // Simulación acelerada del temporizador para la demo (Cuenta regresiva rápida)
+            let seconds = 15; 
+            countdownDisplay.innerText = "00:15";
+            
+            timerInterval = setInterval(() => {
+                seconds--;
+                countdownDisplay.innerText = `00:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if(seconds <= 0) {
+                    clearInterval(timerInterval);
+                    triggerMindfulPause();
+                }
+            }, 1000);
+        }
+
+        function triggerMindfulPause() {
+            focusView.style.display = 'none';
+            pauseView.style.display = 'flex';
+        }
+
+        document.getElementById('btnCancelFocus').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            focusView.style.display = 'none';
+        });
+
+        document.getElementById('btnEndPause').addEventListener('click', () => {
+            pauseView.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+print("Archivo index.html generado con éxito.")
