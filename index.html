@@ -3,463 +3,1844 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MenteClara MVP</title>
+    <meta name="description" content="MenteClara — Gestión de tareas con diseño emocional para estudiantes universitarios. Reduce la ansiedad, activa el enfoque.">
+    <title>MenteClara — Enfoca tu mente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ═══════════════════════════════════════════
+           DESIGN TOKENS
+           ═══════════════════════════════════════════ */
+        :root {
+            --bg: #f4efe8;
+            --surface: rgba(255, 255, 255, 0.72);
+            --text: #22313f;
+            --muted: #66778a;
+            --shadow: 0 22px 60px rgba(52, 64, 84, 0.12);
+            --shadow-soft: 0 10px 28px rgba(52, 64, 84, 0.08);
+            --accent: #6f97a8;
+            --accent-2: #b7a17b;
+            --card-high: #f7d4be;
+            --card-med: #f4e7a6;
+            --card-low: #d9efdc;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ═══════════════════════════════════════════
+           RESET & BASE
+           ═══════════════════════════════════════════ */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
         }
 
         body {
-            background-color: #f8fafc;
+            font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(215, 231, 226, 0.9), transparent 30%),
+                radial-gradient(circle at top right, rgba(239, 212, 183, 0.9), transparent 28%),
+                linear-gradient(180deg, var(--bg) 0%, #f7f2ea 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            inset: auto;
+            width: 24rem;
+            height: 24rem;
+            border-radius: 50%;
+            filter: blur(24px);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        body::before {
+            top: -7rem;
+            left: -7rem;
+            background: rgba(183, 161, 123, 0.2);
+        }
+
+        body::after {
+            right: -8rem;
+            bottom: -8rem;
+            background: rgba(111, 151, 168, 0.18);
+        }
+
+        /* ═══════════════════════════════════════════
+           APP SHELL & PHONE FRAME
+           ═══════════════════════════════════════════ */
+        .app-shell {
+            width: 100%;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            color: #0f172a;
+            align-items: stretch;
+            padding: 16px;
         }
 
-        .mobile-container {
-            width: 100%;
-            max-width: 412px;
-            height: 100vh;
-            background-color: #ffffff;
+        .phone {
+            width: min(100%, 440px);
+            height: calc(100vh - 32px);
             position: relative;
-            padding: 24px 20px;
+            border-radius: 34px;
+            overflow: clip;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.52));
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(22px);
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
         }
 
-        .status-bar {
+        /* ═══════════════════════════════════════════
+           STATUS BAR
+           ═══════════════════════════════════════════ */
+        .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 24px;
-            padding: 0 4px;
+            padding: 18px 18px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
         }
 
-        .status-icons {
+        .top-icons {
             display: flex;
-            gap: 6px;
             align-items: center;
+            gap: 8px;
+            color: var(--muted);
         }
 
-        .profile-avatar {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%);
-            border-radius: 50%;
+        /* ═══════════════════════════════════════════
+           CONTENT AREA
+           ═══════════════════════════════════════════ */
+        .content {
+            flex: 1;
+            min-height: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 16px;
+            padding: 10px 18px 92px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        .profile-avatar svg {
-            width: 22px;
-            height: 22px;
-            fill: none;
+        .content::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* ═══════════════════════════════════════════
+           HERO
+           ═══════════════════════════════════════════ */
+        .hero {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 4px 2px 2px;
+            animation: fadeInUp 600ms var(--ease-out-expo) both;
+        }
+
+        .hero-copy h1 {
+            font-size: 2rem;
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            margin-bottom: 8px;
+        }
+
+        .hero-copy p {
+            color: var(--muted);
+            font-size: 0.96rem;
+            line-height: 1.45;
+            max-width: 24ch;
+        }
+
+        .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(111, 151, 168, 0.92), rgba(183, 161, 123, 0.92));
+            display: grid;
+            place-items: center;
+            box-shadow: var(--shadow-soft);
+            flex: none;
+            transition: transform 300ms var(--ease-spring);
+        }
+
+        .avatar:hover {
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        .avatar svg {
+            width: 24px;
+            height: 24px;
             stroke: white;
+            fill: none;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
 
-        h1 {
-            font-size: 26px;
+        /* ═══════════════════════════════════════════
+           CHIP ROW
+           ═══════════════════════════════════════════ */
+        .chip-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none;
+            animation: fadeInUp 600ms 100ms var(--ease-out-expo) both;
+        }
+
+        .chip-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            flex: none;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            color: var(--muted);
+            font-size: 12px;
             font-weight: 700;
-            color: #0f172a;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
+            box-shadow: 0 10px 22px rgba(52, 64, 84, 0.05);
+            transition: transform 200ms var(--ease-spring), background 200ms ease;
         }
 
-        .subtitle {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 32px;
-            font-weight: 400;
+        .chip:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        .tasks-list {
+        /* ═══════════════════════════════════════════
+           PANELS
+           ═══════════════════════════════════════════ */
+        .panel {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            border-radius: 28px;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(18px);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .panel-title h2 {
+            font-size: 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-title span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .surface {
+            padding: 16px;
+        }
+
+        .tasks-panel {
+            animation: fadeInUp 600ms 200ms var(--ease-out-expo) both;
+        }
+
+        /* ═══════════════════════════════════════════
+           TASK CARDS
+           ═══════════════════════════════════════════ */
+        .tasks {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 32px;
+            gap: 12px;
         }
 
         .task-card {
-            width: 100%;
-            padding: 16px 20px;
-            border-radius: 24px;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            color: #1e293b;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 0;
+            border-radius: 22px;
+            padding: 15px 16px;
+            color: #20303b;
+            text-align: left;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 10px 20px rgba(52, 64, 84, 0.06);
+            cursor: grab;
+            touch-action: auto;
             user-select: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: transform 280ms var(--ease-spring), box-shadow 280ms ease, opacity 200ms ease;
+            animation: fadeInUp 500ms var(--ease-out-expo) both;
+        }
+
+        .task-card:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 16px 32px rgba(52, 64, 84, 0.1);
         }
 
         .task-card:active {
-            transform: scale(0.98);
+            cursor: grabbing;
         }
 
-        .task-high {
-            background-color: #ffedd5;
-            border: 1px solid #fed7aa;
+        .task-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
         }
 
-        .task-medium {
-            background-color: #fef9c3;
-            border: 1px solid #fef08a;
+        .task-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.55);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
         }
 
-        .task-low {
-            background-color: #dcfce7;
-            border: 1px solid #bbf7d0;
+        .task-time {
+            font-size: 11px;
+            font-weight: 800;
+            color: rgba(32, 48, 59, 0.72);
         }
 
+        .task-card h3 {
+            font-size: 1rem;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        .task-card p {
+            font-size: 0.88rem;
+            line-height: 1.45;
+            color: rgba(32, 48, 59, 0.8);
+        }
+
+        .task-high { background: linear-gradient(135deg, var(--card-high), #f9e0cf); }
+        .task-medium { background: linear-gradient(135deg, var(--card-med), #fbf0bf); }
+        .task-low { background: linear-gradient(135deg, var(--card-low), #ebf7e7); }
+
+        .task-dragging {
+            position: fixed;
+            z-index: 40;
+            box-shadow: 0 26px 48px rgba(32, 48, 59, 0.22) !important;
+            transform: rotate(-2deg) scale(1.05) !important;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        /* ═══════════════════════════════════════════
+           FOCUS VORTEX
+           ═══════════════════════════════════════════ */
         .focus-vortex {
-            width: 100%;
-            border: 1.5px dashed #cbd5e1;
-            border-radius: 24px;
-            padding: 40px 24px;
+            min-height: 130px;
+            border-radius: 26px;
+            border: 1.5px dashed rgba(111, 151, 168, 0.38);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.18));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
+            padding: 18px;
+            gap: 8px;
+            transition: transform 300ms var(--ease-spring), border-color 300ms ease, background 300ms ease, box-shadow 300ms ease;
+            animation: fadeInUp 600ms 300ms var(--ease-out-expo) both;
+        }
+
+        .focus-vortex.is-active {
+            transform: scale(1.03);
+            border-color: rgba(111, 151, 168, 0.9);
+            background: rgba(255, 255, 255, 0.65);
+            box-shadow: 0 0 0 6px rgba(111, 151, 168, 0.08), 0 0 40px rgba(111, 151, 168, 0.12);
+            animation: vortexPulse 800ms ease-in-out infinite;
+        }
+
+        .focus-vortex .vortex-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(111, 151, 168, 0.15), rgba(183, 161, 123, 0.12));
+            display: grid;
+            place-items: center;
+            margin-bottom: 2px;
+            transition: transform 300ms var(--ease-spring);
+        }
+
+        .focus-vortex.is-active .vortex-icon {
+            transform: scale(1.15) rotate(90deg);
+            background: linear-gradient(135deg, rgba(111, 151, 168, 0.3), rgba(183, 161, 123, 0.25));
+        }
+
+        .focus-vortex .vortex-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .focus-vortex strong {
+            font-size: 0.95rem;
+            letter-spacing: -0.02em;
+        }
+
+        .focus-vortex small {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            max-width: 22ch;
+        }
+
+        /* ═══════════════════════════════════════════
+           QUICK ADD (REGISTRO EXPRÉS)
+           ═══════════════════════════════════════════ */
+        .quick-add-panel {
+            animation: fadeInUp 600ms 400ms var(--ease-out-expo) both;
+        }
+
+        .quick-add {
+            display: grid;
+            gap: 14px;
+        }
+
+        .stepper {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .step-dot {
+            height: 8px;
+            flex: 1;
+            border-radius: 999px;
+            background: rgba(102, 119, 138, 0.18);
+            transition: background 300ms var(--ease-out-expo);
+        }
+
+        .step-dot.active {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        }
+
+        .quick-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .quick-label h3 {
+            font-size: 1.02rem;
+            line-height: 1.2;
+        }
+
+        .quick-label span {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .field,
+        .slider {
+            width: 100%;
+        }
+
+        .field {
+            border: 1px solid rgba(102, 119, 138, 0.18);
+            border-radius: 18px;
+            padding: 14px 15px;
+            background: rgba(255, 255, 255, 0.72);
+            color: var(--text);
+            font: inherit;
+            outline: none;
+            transition: border-color 200ms ease, box-shadow 200ms ease;
+        }
+
+        .field:focus {
+            border-color: rgba(111, 151, 168, 0.5);
+            box-shadow: 0 0 0 4px rgba(111, 151, 168, 0.08);
+        }
+
+        .field::placeholder {
+            color: #8a97a8;
+        }
+
+        .slider-wrap {
+            display: grid;
+            gap: 12px;
+        }
+
+        .slider-value {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        input[type='range'] {
+            width: 100%;
+            appearance: none;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #cde7d7, #f7e8be, #f7d4be);
+            outline: none;
+            transition: opacity 200ms ease;
+        }
+
+        input[type='range']::-webkit-slider-thumb {
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid rgba(102, 119, 138, 0.22);
+            box-shadow: 0 10px 20px rgba(32, 48, 59, 0.18);
+            transition: transform 200ms var(--ease-spring), box-shadow 200ms ease;
+        }
+
+        input[type='range']::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 24px rgba(32, 48, 59, 0.22);
+        }
+
+        input[type='range']::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid rgba(102, 119, 138, 0.22);
+            box-shadow: 0 10px 20px rgba(32, 48, 59, 0.18);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(102, 119, 138, 0.12);
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .summary-row strong {
+            color: var(--text);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 18px;
+            padding: 14px 16px;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 200ms var(--ease-spring), box-shadow 200ms ease, opacity 200ms ease;
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(0.97);
+        }
+
+        .btn-primary {
+            color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 16px 32px rgba(111, 151, 168, 0.22);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 20px 40px rgba(111, 151, 168, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(102, 119, 138, 0.14);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ═══════════════════════════════════════════
+           FLOATING ACTION BUTTON
+           ═══════════════════════════════════════════ */
+        .btn-floating {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            width: 58px;
+            height: 58px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #6f97a8, #b7a17b);
+            box-shadow: 0 18px 34px rgba(111, 151, 168, 0.28);
+            color: white;
+            display: grid;
+            place-items: center;
+            z-index: 20;
+            border: 0;
+            cursor: pointer;
+            transition: transform 280ms var(--ease-spring), box-shadow 280ms ease;
+        }
+
+        .btn-floating:hover {
+            transform: scale(1.08) rotate(-5deg);
+            box-shadow: 0 22px 44px rgba(111, 151, 168, 0.35);
+        }
+
+        .btn-floating:active {
+            transform: scale(0.95);
+        }
+
+        .btn-floating svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ═══════════════════════════════════════════
+           ROADMAP
+           ═══════════════════════════════════════════ */
+        .roadmap-panel {
+            animation: fadeInUp 600ms 500ms var(--ease-out-expo) both;
+        }
+
+        .roadmap {
+            display: grid;
+            gap: 12px;
+        }
+
+        .roadmap-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.68);
+            border: 1px solid rgba(102, 119, 138, 0.12);
+            transition: transform 200ms var(--ease-spring), background 200ms ease;
+        }
+
+        .roadmap-item:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .roadmap-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            margin-top: 4px;
+            flex: none;
+        }
+
+        .roadmap-item h4 {
+            font-size: 0.94rem;
+            margin-bottom: 4px;
+        }
+
+        .roadmap-item p {
+            font-size: 0.86rem;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        /* ═══════════════════════════════════════════
+           OVERLAY SCREENS (Focus & Pause)
+           ═══════════════════════════════════════════ */
+        .screen {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-top: auto;
-            margin-bottom: 40px;
-            background-color: transparent;
+            text-align: center;
+            padding: 28px;
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 350ms var(--ease-out-expo);
         }
 
-        .vortex-title {
-            font-size: 14px;
-            color: #64748b;
-            font-weight: 500;
-            line-height: 1.4;
+        .screen.is-open {
+            opacity: 1;
+            pointer-events: all;
         }
 
-        .vortex-subtitle {
+        .screen.is-open > * {
+            animation: fadeInUp 500ms var(--ease-out-expo) both;
+        }
+
+        .screen.is-open > *:nth-child(2) { animation-delay: 80ms; }
+        .screen.is-open > *:nth-child(3) { animation-delay: 160ms; }
+        .screen.is-open > *:nth-child(4) { animation-delay: 240ms; }
+        .screen.is-open > *:nth-child(5) { animation-delay: 320ms; }
+
+        /* FOCUS (Deep Focus) */
+        .focus-screen {
+            background: linear-gradient(180deg, #0e1727 0%, #101d30 60%, #0c1320 100%);
+            color: #eff6ff;
+        }
+
+        .focus-screen .screen-kicker,
+        .pause-screen .screen-kicker {
             font-size: 12px;
-            color: #94a3b8;
-            margin-top: 4px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.72;
+            margin-bottom: 12px;
         }
 
-        .fab-button {
+        .focus-screen h2,
+        .pause-screen h2 {
+            font-size: 1.9rem;
+            line-height: 1.02;
+            letter-spacing: -0.05em;
+            margin-bottom: 10px;
+            max-width: 14ch;
+        }
+
+        .focus-screen p,
+        .pause-screen p {
+            max-width: 24ch;
+            color: rgba(226, 232, 240, 0.76);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        /* SVG TIMER */
+        .timer-shell {
+            width: 216px;
+            height: 216px;
+            position: relative;
+            margin: 8px 0 28px;
+            display: grid;
+            place-items: center;
+        }
+
+        .timer-svg {
             position: absolute;
-            bottom: 24px;
-            right: 20px;
-            width: 54px;
-            height: 54px;
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 14px rgba(129, 140, 248, 0.4);
-            cursor: pointer;
-            border: none;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
         }
 
-        .fab-button svg {
+        .timer-track {
+            fill: none;
+            stroke: rgba(148, 163, 184, 0.15);
+            stroke-width: 5;
+        }
+
+        .timer-progress {
+            fill: none;
+            stroke: url(#timerGradient);
+            stroke-width: 5;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-dashed {
+            fill: none;
+            stroke: rgba(148, 163, 184, 0.2);
+            stroke-width: 1;
+            stroke-dasharray: 4 8;
+            animation: spin 30s linear infinite;
+        }
+
+        .timer-center {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .timer-time {
+            font-size: 3rem;
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -0.06em;
+        }
+
+        .timer-label {
+            margin-top: 10px;
+            color: rgba(226, 232, 240, 0.7);
+            font-size: 0.92rem;
+        }
+
+        .timer-glow {
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(111, 151, 168, 0.06) 0%, transparent 70%);
+            animation: breatheSoft 6s ease-in-out infinite;
+        }
+
+        /* PAUSE (Mindful) */
+        .pause-screen {
+            background: linear-gradient(180deg, #ecf3ff 0%, #f7f0e6 100%);
+            color: #22313f;
+        }
+
+        .pause-screen p {
+            color: rgba(34, 49, 63, 0.7);
+        }
+
+        .ring {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(183, 161, 123, 0.16) 42%, rgba(111, 151, 168, 0.06) 70%, transparent 74%);
+            box-shadow: 0 0 0 18px rgba(255, 255, 255, 0.04);
+            animation: breathe 4.4s ease-in-out infinite;
+            margin-bottom: 28px;
+        }
+
+        .pause-copy {
+            font-size: 1.1rem;
+            line-height: 1.55;
+            max-width: 20ch;
+            margin-bottom: 28px;
+        }
+
+        /* ═══════════════════════════════════════════
+           TAP CONFIRM MODAL
+           ═══════════════════════════════════════════ */
+        .confirm-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(34, 49, 63, 0.3);
+            backdrop-filter: blur(8px);
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 250ms var(--ease-out-expo);
+        }
+
+        .confirm-overlay.is-open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .confirm-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 28px;
+            padding: 28px 24px 22px;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(32, 48, 59, 0.18);
+            max-width: 320px;
+            width: 100%;
+            transform: scale(0.92) translateY(12px);
+            transition: transform 350ms var(--ease-spring);
+        }
+
+        .confirm-overlay.is-open .confirm-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .confirm-card .confirm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(111, 151, 168, 0.15), rgba(183, 161, 123, 0.12));
+            display: grid;
+            place-items: center;
+            margin: 0 auto 16px;
+        }
+
+        .confirm-card .confirm-icon svg {
             width: 24px;
             height: 24px;
+            stroke: var(--accent);
             fill: none;
-            stroke: white;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .confirm-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 6px;
+            letter-spacing: -0.03em;
+        }
+
+        .confirm-card p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.45;
+            margin-bottom: 20px;
+        }
+
+        .confirm-card .confirm-task-name {
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .confirm-actions .btn {
+            flex: 1;
+            padding: 13px 14px;
+            font-size: 0.92rem;
+        }
+
+        /* ═══════════════════════════════════════════
+           TOAST
+           ═══════════════════════════════════════════ */
+        .toast {
+            position: absolute;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 999px;
+            padding: 12px 20px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            box-shadow: 0 16px 40px rgba(32, 48, 59, 0.14);
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease, transform 400ms var(--ease-spring);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.is-visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--card-low), #c8e8cc);
+            display: grid;
+            place-items: center;
+            flex: none;
+        }
+
+        .toast-check svg {
+            width: 12px;
+            height: 12px;
+            stroke: #2d6a3f;
+            fill: none;
             stroke-width: 2.5;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
 
-        .focus-view {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0f172a;
-            padding: 40px 24px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            z-index: 10;
+        /* ═══════════════════════════════════════════
+           EMPTY STATE
+           ═══════════════════════════════════════════ */
+        .empty-state {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+            animation: fadeInUp 400ms var(--ease-out-expo) both;
         }
 
-        .timer-circle {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            border: 4px solid #334155;
-            border-top-color: #818cf8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 24px;
-        }
-
-        .current-task-title {
-            font-size: 18px;
-            font-weight: 600;
+        .empty-state .empty-icon {
+            font-size: 2rem;
             margin-bottom: 8px;
-            text-align: center;
-            color: #f1f5f9;
+            opacity: 0.6;
         }
 
-        .focus-status-text {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 48px;
+        /* ═══════════════════════════════════════════
+           UTILITIES
+           ═══════════════════════════════════════════ */
+        .hidden {
+            display: none !important;
         }
 
-        .btn-cancel {
-            background-color: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 12px 24px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
+        /* ═══════════════════════════════════════════
+           KEYFRAMES
+           ═══════════════════════════════════════════ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .pause-view {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
-            padding: 40px 24px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            z-index: 11;
-        }
-
-        .breathing-ring {
-            width: 120px;
-            height: 120px;
-            background-color: rgba(129, 140, 248, 0.15);
-            border-radius: 50%;
-            margin-bottom: 40px;
-            animation: breathe 4s ease-in-out infinite;
-        }
-
-        .pause-message {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1e1b4b;
-            line-height: 1.4;
-            margin-bottom: 48px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @keyframes breathe {
-            0%, 100% { transform: scale(1); background-color: rgba(129, 140, 248, 0.15); }
-            50% { transform: scale(1.3); background-color: rgba(192, 132, 252, 0.25); }
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.72;
+            }
+            50% {
+                transform: scale(1.18);
+                opacity: 1;
+            }
+        }
+
+        @keyframes breatheSoft {
+            0%, 100% {
+                opacity: 0.4;
+                transform: scale(0.95);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes vortexPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 6px rgba(111, 151, 168, 0.08), 0 0 40px rgba(111, 151, 168, 0.12);
+            }
+            50% {
+                box-shadow: 0 0 0 12px rgba(111, 151, 168, 0.14), 0 0 60px rgba(111, 151, 168, 0.18);
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════ */
+        @media (min-width: 700px) {
+            body {
+                overflow: hidden;
+            }
+
+            .phone {
+                margin: 0 auto;
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="mobile-container">
-        <div class="status-bar">
-            <span>9:41</span>
-            <div class="status-icons">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/></svg>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="16" height="10" x="2" y="7" rx="2"/><path d="M22 11v2"/></svg>
+    <div class="app-shell">
+        <main class="phone" aria-label="Prototipo MenteClara">
+            <!-- STATUS BAR -->
+            <div class="top-bar">
+                <span id="clockDisplay">9:41</span>
+                <div class="top-icons" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="16" height="10" x="2" y="7" rx="2"/><path d="M22 11v2"/></svg>
+                </div>
             </div>
-        </div>
 
-        <div class="profile-avatar">
-            <svg viewBox="0 0 24 24">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-        </div>
+            <!-- DASHBOARD -->
+            <section class="content" id="dashboardView">
+                <div class="hero">
+                    <div class="hero-copy">
+                        <h1>MenteClara</h1>
+                        <p>Organiza lo urgente sin ruido visual y entra en foco sin pelearte con la interfaz.</p>
+                    </div>
+                    <div class="avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                </div>
 
-        <h1>Hola, Estudiante</h1>
-        <div class="subtitle">Respira. Vamos a avanzar un paso a la vez.</div>
+                <div class="chip-row" aria-label="Estado rápido">
+                    <div class="chip" id="chipCarga">Carga mental: media</div>
+                    <div class="chip" id="chipBloque">Bloque sugerido: 18 min</div>
+                    <div class="chip">Respiración: activa</div>
+                </div>
 
-        <div class="tasks-list" id="tasksList">
-            <div class="task-card task-high" id="task1">Avance Proyecto Final IHC</div>
-            <div class="task-card task-medium" id="task2">Estudiar para PC2</div>
-            <div class="task-card task-low" id="task3">Lectura Obligatoria Semana 12</div>
-        </div>
+                <!-- TASKS -->
+                <section class="panel surface tasks-panel">
+                    <div class="panel-title">
+                        <h2>Carga mental de hoy</h2>
+                        <span id="pendingCount">3 pendientes</span>
+                    </div>
 
-        <div class="focus-vortex" id="focusVortex">
-            <div class="vortex-title">Arrastra aquí para enfocarte</div>
-            <div class="vortex-subtitle">(Focus Vortex)</div>
-        </div>
+                    <div class="tasks" id="tasksList">
+                        <article class="task-card task-high" data-task="Avance Proyecto Final IHC" data-stress="Pesadilla" data-minutes="20" style="animation-delay: 250ms">
+                            <div class="task-meta">
+                                <div class="task-badge">Alta carga</div>
+                                <div class="task-time">20 min</div>
+                            </div>
+                            <h3>Avance Proyecto Final IHC</h3>
+                            <p>Conviene entrar por un bloque corto para evitar la barrera inicial.</p>
+                        </article>
 
-        <button class="fab-button" onclick="alert('Funcionalidad MVP: Registro Exprés activado en simulación')">
-            <svg viewBox="0 0 24 24">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-        </button>
+                        <article class="task-card task-medium" data-task="Estudiar para PC2" data-stress="Pesada" data-minutes="18" style="animation-delay: 380ms">
+                            <div class="task-meta">
+                                <div class="task-badge">Carga media</div>
+                                <div class="task-time">18 min</div>
+                            </div>
+                            <h3>Estudiar para PC2</h3>
+                            <p>Ideal para un impulso breve con foco sin interrupciones.</p>
+                        </article>
 
-        <div class="focus-view" id="focusView">
-            <div class="current-task-title" id="activeTaskTitle">Tarea Activa</div>
-            <div class="focus-status-text">Bloque de Enfoque Activo</div>
-            <div class="timer-circle" id="countdownDisplay">15:00</div>
-            <button class="btn-cancel" id="btnCancelFocus">Terminar Sesión</button>
-        </div>
+                        <article class="task-card task-low" data-task="Lectura Obligatoria Semana 12" data-stress="Ligera" data-minutes="15" style="animation-delay: 510ms">
+                            <div class="task-meta">
+                                <div class="task-badge">Baja fricción</div>
+                                <div class="task-time">15 min</div>
+                            </div>
+                            <h3>Lectura Obligatoria Semana 12</h3>
+                            <p>Una tarea suave para recuperar tracción sin fatiga mental.</p>
+                        </article>
+                    </div>
+                </section>
 
-        <div class="pause-view" id="pauseView">
-            <div class="breathing-ring"></div>
-            <div class="pause-message">Inhala... Exhala...<br>Tómate 3 minutos para estirarte.<br>Yo cuido tu tiempo.</div>
-            <button class="btn-cancel" style="background-color: #e2e8f0; color: #475569; border: none;" id="btnEndPause">Volver al Dashboard</button>
-        </div>
+                <!-- FOCUS VORTEX -->
+                <section class="focus-vortex panel" id="focusVortex" aria-label="Focus Vortex">
+                    <div class="vortex-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                    </div>
+                    <strong>Arrastra una tarjeta aquí</strong>
+                    <small>El gesto físico de soltarla en el centro activa el modo de enfoque.</small>
+                </section>
+
+                <!-- REGISTRO EXPRÉS -->
+                <section class="panel surface quick-add-panel">
+                    <div class="panel-title">
+                        <h2>Registro exprés</h2>
+                        <span id="stepLabel">Paso 1 de 3</span>
+                    </div>
+
+                    <div class="quick-add" id="quickAddFlow">
+                        <div class="stepper" aria-hidden="true">
+                            <span class="step-dot active"></span>
+                            <span class="step-dot"></span>
+                            <span class="step-dot"></span>
+                        </div>
+
+                        <div class="quick-step" data-step="1">
+                            <div class="quick-label">
+                                <h3>¿Qué quieres sacar de tu cabeza?</h3>
+                                <span>Un solo campo</span>
+                            </div>
+                            <input class="field" id="taskNameInput" type="text" placeholder="Ej. Terminar resumen de la semana 12" maxlength="80">
+                        </div>
+
+                        <div class="quick-step hidden" data-step="2">
+                            <div class="quick-label">
+                                <h3>¿Cuánto pesa hoy?</h3>
+                                <span>Un paseo → Pesadilla</span>
+                            </div>
+                            <div class="slider-wrap">
+                                <input class="slider" id="stressSlider" type="range" min="0" max="100" value="55">
+                                <div class="slider-value">
+                                    <span id="stressLabel">Pesada</span>
+                                    <span id="stressColorName">Amarillo pastel</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-step hidden" data-step="3">
+                            <div class="quick-label">
+                                <h3>Resumen antes de guardar</h3>
+                                <span>Confirmación suave</span>
+                            </div>
+                            <div class="summary-row" id="taskSummaryRow">
+                                <span>Tarea</span>
+                                <strong>Sin título</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Color emocional</span>
+                                <strong id="summaryColor">Amarillo pastel</strong>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-secondary" id="quickBack" type="button">Cerrar</button>
+                            <button class="btn btn-primary" id="quickNext" type="button">Continuar</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ROADMAP -->
+                <section class="panel surface roadmap-panel">
+                    <div class="panel-title">
+                        <h2>Próximas funcionalidades</h2>
+                        <span>MVP roadmap</span>
+                    </div>
+                    <div class="roadmap">
+                        <article class="roadmap-item">
+                            <div class="roadmap-dot"></div>
+                            <div>
+                                <h4>Sincronización ligera</h4>
+                                <p>Guardar tareas localmente primero y sincronizar después sin fricción.</p>
+                            </div>
+                        </article>
+                        <article class="roadmap-item">
+                            <div class="roadmap-dot"></div>
+                            <div>
+                                <h4>Historial de enfoque</h4>
+                                <p>Ver qué bloques se completaron y cómo cambió la carga mental.</p>
+                            </div>
+                        </article>
+                        <article class="roadmap-item">
+                            <div class="roadmap-dot"></div>
+                            <div>
+                                <h4>Recordatorios empáticos</h4>
+                                <p>Notificaciones suaves, sin lenguaje punitivo ni colores agresivos.</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </section>
+
+            <!-- FAB -->
+            <button class="btn-floating" id="openQuickAdd" type="button" aria-label="Abrir registro exprés">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 5v14"/>
+                    <path d="M5 12h14"/>
+                </svg>
+            </button>
+
+            <!-- TOAST -->
+            <div class="toast" id="toast" aria-live="polite">
+                <div class="toast-check">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span id="toastMessage">Tarea añadida</span>
+            </div>
+
+            <!-- TAP CONFIRM MODAL -->
+            <div class="confirm-overlay" id="confirmOverlay">
+                <div class="confirm-card">
+                    <div class="confirm-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                    </div>
+                    <h3>¿Entrar en enfoque?</h3>
+                    <p>Vas a concentrarte en: <span class="confirm-task-name" id="confirmTaskName">—</span></p>
+                    <div class="confirm-actions">
+                        <button class="btn btn-secondary" id="confirmCancel" type="button">Ahora no</button>
+                        <button class="btn btn-primary" id="confirmStart" type="button">Iniciar foco</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEEP FOCUS SCREEN -->
+            <section class="screen focus-screen" id="focusScreen" aria-hidden="true">
+                <div class="screen-kicker">Deep Focus</div>
+                <h2 id="focusTaskTitle">Tarea activa</h2>
+                <p id="focusTaskCopy">Vamos a avanzar con un bloque corto. Nada más importa ahora.</p>
+                <div class="timer-shell">
+                    <div class="timer-glow"></div>
+                    <svg class="timer-svg" viewBox="0 0 216 216">
+                        <defs>
+                            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6f97a8"/>
+                                <stop offset="100%" stop-color="#b7a17b"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="timer-dashed" cx="108" cy="108" r="105"/>
+                        <circle class="timer-track" cx="108" cy="108" r="90"/>
+                        <circle class="timer-progress" id="timerProgress" cx="108" cy="108" r="90"/>
+                    </svg>
+                    <div class="timer-center">
+                        <div class="timer-time" id="timerDisplay">18:00</div>
+                        <div class="timer-label">Bloque sugerido</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="endFocusBtn" type="button" style="background:rgba(255,255,255,0.1);color:#eff6ff;border:1px solid rgba(255,255,255,0.15);">Terminar sesión</button>
+            </section>
+
+            <!-- PAUSE MINDFUL SCREEN -->
+            <section class="screen pause-screen" id="pauseScreen" aria-hidden="true">
+                <div class="screen-kicker">Pausa mindful</div>
+                <div class="ring" aria-hidden="true"></div>
+                <h2 id="pauseTitle">Buen trabajo</h2>
+                <p class="pause-copy" id="pauseCopy">Inhala. Exhala. Ya avanzaste lo suficiente por ahora; tu mente también necesita una pausa.</p>
+                <button class="btn btn-primary" id="backToDashboardBtn" type="button">Volver al dashboard</button>
+            </section>
+        </main>
     </div>
 
     <script>
-        // --- CÓDIGO JS CORREGIDO PARA ARRASTRE TÁCTIL (TOUCH DRAG & DROP) ---
-        
-        const cards = document.querySelectorAll('.task-card');
-        const vortex = document.getElementById('focusVortex');
-        const focusView = document.getElementById('focusView');
-        const pauseView = document.getElementById('pauseView');
-        const activeTaskTitle = document.getElementById('activeTaskTitle');
-        const countdownDisplay = document.getElementById('countdownDisplay');
-        
-        let timerInterval = null;
-        let currentDraggedCard = null;
-        let initialX, initialY;
+        /* ═══════════════════════════════════════════
+           DOM REFERENCES
+           ═══════════════════════════════════════════ */
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-        // --- LÓGICA DE ARRASTRE TÁCTIL (MOBILE DRAG) ---
-        cards.forEach(card => {
-            // 1. Detectar cuando el dedo toca la tarea
-            card.addEventListener('touchstart', (e) => {
-                currentDraggedCard = card;
-                const touch = e.touches[0];
-                initialX = touch.clientX;
-                initialY = touch.clientY;
-                
-                // Preparar la tarjeta visualmente para el arrastre
-                card.style.transition = 'none'; // Quitar animaciones mientras arrastramos
-                card.style.zIndex = '1000'; // Asegurar que flote sobre todo
-                card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
-            });
+        const vortex       = $('#focusVortex');
+        const focusScreen  = $('#focusScreen');
+        const pauseScreen  = $('#pauseScreen');
+        const focusTitle   = $('#focusTaskTitle');
+        const focusCopy    = $('#focusTaskCopy');
+        const timerDisplay = $('#timerDisplay');
+        const timerProgress= $('#timerProgress');
+        const tasksList    = $('#tasksList');
+        const pendingCount = $('#pendingCount');
+        const chipCarga    = $('#chipCarga');
+        const chipBloque   = $('#chipBloque');
+        const toast        = $('#toast');
+        const toastMsg     = $('#toastMessage');
 
-            // 2. Detectar el movimiento del dedo (Arrastrar)
-            card.addEventListener('touchmove', (e) => {
-                if (!currentDraggedCard) return;
-                e.preventDefault(); // Prevenir que la página haga scroll
+        // Quick-add
+        const quickSteps   = $$('.quick-step');
+        const stepDots     = $$('.step-dot');
+        const stepLabel    = $('#stepLabel');
+        const quickNext    = $('#quickNext');
+        const quickBack    = $('#quickBack');
+        const taskInput    = $('#taskNameInput');
+        const slider       = $('#stressSlider');
+        const stressLabel  = $('#stressLabel');
+        const stressColor  = $('#stressColorName');
+        const summaryColor = $('#summaryColor');
+        const summaryRow   = $('#taskSummaryRow');
+        const openFAB      = $('#openQuickAdd');
 
-                const touch = e.touches[0];
-                const currentX = touch.clientX;
-                const currentY = touch.clientY;
+        // Confirm modal
+        const confirmOverlay = $('#confirmOverlay');
+        const confirmName    = $('#confirmTaskName');
+        const confirmCancel  = $('#confirmCancel');
+        const confirmStart   = $('#confirmStart');
 
-                // Calcular cuánto se ha movido el dedo desde el inicio
-                const diffX = currentX - initialX;
-                const diffY = currentY - initialY;
+        // Pause
+        const pauseTitle     = $('#pauseTitle');
+        const pauseCopy      = $('#pauseCopy');
+        const backBtn        = $('#backToDashboardBtn');
+        const endFocusBtn    = $('#endFocusBtn');
 
-                // Mover la tarjeta visualmente siguiendo el dedo
-                card.style.transform = `translate(${diffX}px, ${diffY}px) scale(1.02)`;
+        // Clock
+        const clockDisplay   = $('#clockDisplay');
 
-                // --- DETECTAR SI ESTAMOS SOBRE EL VÓRTICE ---
-                const vortexRect = vortex.getBoundingClientRect();
-                
-                // Comprobar si el dedo actual está dentro de los límites del vórtice
-                if (currentX > vortexRect.left && currentX < vortexRect.right &&
-                    currentY > vortexRect.top && currentY < vortexRect.bottom) {
-                    vortex.style.backgroundColor = '#f1f5f9'; // Iluminar vórtice
-                    vortex.style.borderColor = '#818cf8';
-                } else {
-                    vortex.style.backgroundColor = 'transparent'; // Apagar vórtice
-                    vortex.style.borderColor = '#cbd5e1';
-                }
-            });
+        /* ═══════════════════════════════════════════
+           STATE
+           ═══════════════════════════════════════════ */
+        let step      = 1;
+        let timerId   = null;
+        let dragging  = null;
+        let hasDragged = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let pendingConfirmCard = null;
 
-            // 3. Detectar cuando el dedo se levanta (Soltar)
-            card.addEventListener('touchend', (e) => {
-                if (!currentDraggedCard) return;
+        /* ═══════════════════════════════════════════
+           STRESS PROFILES
+           ═══════════════════════════════════════════ */
+        const stressMap = [
+            { max: 20, label: 'Un paseo',  color: 'Verde menta',     css: 'task-low',    badge: 'Baja fricción', min: 15 },
+            { max: 40, label: 'Ligera',    color: 'Verde menta',     css: 'task-low',    badge: 'Baja fricción', min: 15 },
+            { max: 60, label: 'Media',     color: 'Amarillo pastel', css: 'task-medium', badge: 'Carga media',   min: 18 },
+            { max: 80, label: 'Pesada',    color: 'Amarillo pastel', css: 'task-medium', badge: 'Carga media',   min: 18 },
+            { max: 100,label: 'Pesadilla', color: 'Naranja pastel',  css: 'task-high',   badge: 'Alta carga',    min: 20 },
+        ];
 
-                const touch = e.changedTouches[0];
-                const finalX = touch.clientX;
-                const finalY = touch.clientY;
-
-                const vortexRect = vortex.getBoundingClientRect();
-                vortex.style.backgroundColor = 'transparent'; // Apagar vórtice siempre
-                vortex.style.borderColor = '#cbd5e1';
-
-                // --- COMPROBAR SI SOLTAMOS DENTRO DEL VÓRTICE ---
-                if (finalX > vortexRect.left && finalX < vortexRect.right &&
-                    finalY > vortexRect.top && finalY < vortexRect.bottom) {
-                    
-                    // ¡ÉXITO! Iniciar sesión de enfoque
-                    startFocusSession(card.innerText);
-                    
-                    // Resetear posición de la tarjeta instantáneamente (estará oculta atrás)
-                    resetCardPosition(card);
-                } else {
-                    // FALLO: Animar la tarjeta de vuelta a su lugar original
-                    card.style.transition = 'transform 0.4s ease-out';
-                    card.style.transform = 'translate(0px, 0px) scale(1)';
-                    setTimeout(() => resetCardPosition(card), 400); // Resetear estilos tras animación
-                }
-
-                currentDraggedCard = null;
-            });
-        });
-
-        // Función para limpiar los estilos de arrastre de la tarjeta
-        function resetCardPosition(card) {
-            card.style.transition = '';
-            card.style.zIndex = '';
-            card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)';
-            if(!currentDraggedCard) card.style.transform = ''; 
+        function getProfile(val) {
+            const v = Number(val);
+            return stressMap.find(p => v <= p.max) || stressMap[4];
         }
 
-        // --- RESTO DE LÓGICA DEL MVP (TEMPORIZADOR) ---
-        function startFocusSession(taskTitle) {
-            activeTaskTitle.innerText = taskTitle;
-            focusView.style.display = 'flex';
-            
-            let seconds = 15; 
-            countdownDisplay.innerText = "00:15";
-            
-            clearInterval(timerInterval); // Asegurar que no haya otro timer corriendo
-            timerInterval = setInterval(() => {
-                seconds--;
-                countdownDisplay.innerText = `00:${seconds < 10 ? '0' : ''}${seconds}`;
-                
-                if(seconds <= 0) {
-                    clearInterval(timerInterval);
-                    triggerMindfulPause();
+        /* ═══════════════════════════════════════════
+           EMPATHETIC COPY POOL
+           ═══════════════════════════════════════════ */
+        const pauseTitles = [
+            'Buen trabajo', 'Lo lograste', 'Gran esfuerzo', 'Bien hecho',
+            'Mereces esto', 'Respira hondo', 'Avance real'
+        ];
+
+        const pauseCopies = [
+            'Inhala. Exhala. Ya avanzaste lo suficiente por ahora; tu mente también necesita una pausa.',
+            'Cada bloque de enfoque es una victoria. No necesitas resolver todo hoy.',
+            'Tu cerebro acaba de hacer algo difícil. Dale un momento antes de seguir.',
+            'Hiciste más de lo que crees. Tómate un instante para reconocerlo.',
+            'La productividad real incluye pausas. Esto también cuenta como progreso.',
+            'Has roto la barrera de la procrastinación. Eso merece un respiro consciente.',
+            'No se trata de hacer todo perfecto, sino de dar el primer paso. Ya lo diste.'
+        ];
+
+        function randomFrom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        /* ═══════════════════════════════════════════
+           LIVE CLOCK
+           ═══════════════════════════════════════════ */
+        function updateClock() {
+            const now = new Date();
+            clockDisplay.textContent = now.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+        updateClock();
+        setInterval(updateClock, 30000);
+
+        /* ═══════════════════════════════════════════
+           DYNAMIC COUNTERS
+           ═══════════════════════════════════════════ */
+        function updateCounters() {
+            const cards = $$('.task-card');
+            const count = cards.length;
+
+            pendingCount.textContent = count === 0
+                ? 'Sin pendientes ✨'
+                : `${count} pendiente${count > 1 ? 's' : ''}`;
+
+            // Average stress chip
+            if (count === 0) {
+                chipCarga.textContent = 'Carga mental: libre';
+                chipBloque.textContent = 'Sin bloques';
+            } else {
+                const stressVals = { 'Pesadilla': 5, 'Pesada': 4, 'Media': 3, 'Ligera': 2, 'Un paseo': 1 };
+                let sum = 0;
+                cards.forEach(c => { sum += (stressVals[c.dataset.stress] || 3); });
+                const avg = sum / count;
+                const level = avg > 4 ? 'alta' : avg > 2.5 ? 'media' : 'baja';
+                chipCarga.textContent = `Carga mental: ${level}`;
+
+                let totalMin = 0;
+                cards.forEach(c => { totalMin += Number(c.dataset.minutes || 18); });
+                const sugMin = Math.round(totalMin / count);
+                chipBloque.textContent = `Bloque sugerido: ${sugMin} min`;
+            }
+
+            // Empty state
+            if (count === 0 && !tasksList.querySelector('.empty-state')) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.innerHTML = '<div class="empty-icon">🧘</div>Sin tareas pendientes.<br>Tu mente está clara.';
+                tasksList.appendChild(empty);
+            } else if (count > 0) {
+                const existing = tasksList.querySelector('.empty-state');
+                if (existing) existing.remove();
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           TOAST NOTIFICATION
+           ═══════════════════════════════════════════ */
+        let toastTimer = null;
+        function showToast(message) {
+            toastMsg.textContent = message;
+            toast.classList.add('is-visible');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
+        }
+
+        /* ═══════════════════════════════════════════
+           HAPTIC FEEDBACK
+           ═══════════════════════════════════════════ */
+        function haptic(ms = 50) {
+            if (navigator.vibrate) navigator.vibrate(ms);
+        }
+
+        /* ═══════════════════════════════════════════
+           WEB AUDIO CHIME
+           ═══════════════════════════════════════════ */
+        function playChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99]; // C5 E5 G5
+                notes.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.15);
+                    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + i * 0.15 + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.6);
+                    osc.connect(gain).connect(ctx.destination);
+                    osc.start(ctx.currentTime + i * 0.15);
+                    osc.stop(ctx.currentTime + i * 0.15 + 0.7);
+                });
+            } catch (e) { /* silent fail */ }
+        }
+
+        /* ═══════════════════════════════════════════
+           SVG TIMER PROGRESS
+           ═══════════════════════════════════════════ */
+        const TIMER_RADIUS = 90;
+        const TIMER_CIRCUMFERENCE = 2 * Math.PI * TIMER_RADIUS;
+
+        timerProgress.style.strokeDasharray = TIMER_CIRCUMFERENCE;
+        timerProgress.style.strokeDashoffset = '0';
+
+        function setTimerProgress(fraction) {
+            // fraction: 0 = full, 1 = empty
+            timerProgress.style.strokeDashoffset = TIMER_CIRCUMFERENCE * fraction;
+        }
+
+        /* ═══════════════════════════════════════════
+           QUICK-ADD STEPPER
+           ═══════════════════════════════════════════ */
+        function setStep(n) {
+            step = Math.min(3, Math.max(1, n));
+            quickSteps.forEach(s => s.classList.add('hidden'));
+            quickSteps[step - 1].classList.remove('hidden');
+            stepDots.forEach((dot, i) => dot.classList.toggle('active', i < step));
+            stepLabel.textContent = `Paso ${step} de 3`;
+            quickBack.textContent = step === 1 ? 'Cerrar' : 'Atrás';
+            quickNext.textContent = step === 3 ? 'Guardar tarea' : 'Continuar';
+            updateSummary();
+        }
+
+        function updateStressUI() {
+            const profile = getProfile(slider.value);
+            stressLabel.textContent = profile.label;
+            stressColor.textContent = profile.color;
+            summaryColor.textContent = profile.color;
+            summaryRow.querySelector('strong').textContent = taskInput.value.trim() || 'Sin título';
+        }
+
+        function updateSummary() { updateStressUI(); }
+
+        function nextQuickStep() {
+            if (step === 1) {
+                if (!taskInput.value.trim()) {
+                    taskInput.focus();
+                    taskInput.style.borderColor = 'rgba(247, 180, 140, 0.7)';
+                    taskInput.style.boxShadow = '0 0 0 4px rgba(247, 180, 140, 0.15)';
+                    setTimeout(() => {
+                        taskInput.style.borderColor = '';
+                        taskInput.style.boxShadow = '';
+                    }, 1200);
+                    return;
+                }
+                setStep(2);
+            } else if (step === 2) {
+                setStep(3);
+            } else if (step === 3) {
+                const profile = getProfile(slider.value);
+                const title = taskInput.value.trim();
+                addTask(title, profile);
+                taskInput.value = '';
+                slider.value = 55;
+                setStep(1);
+                showToast('✓ Tarea añadida al dashboard');
+                haptic(30);
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           ADD TASK
+           ═══════════════════════════════════════════ */
+        function addTask(title, profile) {
+            const card = document.createElement('article');
+            card.className = `task-card ${profile.css}`;
+            card.dataset.task = title;
+            card.dataset.stress = profile.label;
+            card.dataset.minutes = String(profile.min);
+            card.style.animationDelay = '0ms';
+            card.innerHTML = `
+                <div class="task-meta">
+                    <div class="task-badge">${profile.badge}</div>
+                    <div class="task-time">${profile.min} min</div>
+                </div>
+                <h3>${escapeHtml(title)}</h3>
+                <p>Creada con divulgación progresiva y color emocional ${profile.color.toLowerCase()}.</p>
+            `;
+            attachDragBehavior(card);
+            tasksList.prepend(card);
+            updateCounters();
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        /* ═══════════════════════════════════════════
+           TAP CONFIRM MODAL
+           ═══════════════════════════════════════════ */
+        function showConfirm(card) {
+            pendingConfirmCard = card;
+            confirmName.textContent = card.dataset.task;
+            confirmOverlay.classList.add('is-open');
+            haptic(20);
+        }
+
+        function hideConfirm() {
+            confirmOverlay.classList.remove('is-open');
+            pendingConfirmCard = null;
+        }
+
+        confirmCancel.addEventListener('click', hideConfirm);
+        confirmStart.addEventListener('click', () => {
+            if (!pendingConfirmCard) return;
+            const card = pendingConfirmCard;
+            hideConfirm();
+            openFocus(card);
+            card.remove();
+            updateCounters();
+        });
+
+        // Close on overlay click
+        confirmOverlay.addEventListener('click', (e) => {
+            if (e.target === confirmOverlay) hideConfirm();
+        });
+
+        /* ═══════════════════════════════════════════
+           FOCUS MODE
+           ═══════════════════════════════════════════ */
+        function openFocus(card) {
+            const title = card.dataset.task;
+            const minutes = Number(card.dataset.minutes || 18);
+            focusTitle.textContent = title;
+            focusCopy.textContent = `Bloque sugerido de ${minutes} minutos para superar el inicio con menos fricción.`;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:00`;
+
+            const totalSeconds = minutes * 60;
+            let remaining = totalSeconds;
+            setTimerProgress(0);
+
+            focusScreen.classList.add('is-open');
+            focusScreen.setAttribute('aria-hidden', 'false');
+
+            clearInterval(timerId);
+            timerId = setInterval(() => {
+                remaining -= 1;
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                setTimerProgress(1 - (remaining / totalSeconds));
+
+                if (remaining <= 0) {
+                    clearInterval(timerId);
+                    playChime();
+                    haptic(100);
+
+                    // Transition to pause
+                    focusScreen.classList.remove('is-open');
+                    focusScreen.setAttribute('aria-hidden', 'true');
+
+                    pauseTitle.textContent = randomFrom(pauseTitles);
+                    pauseCopy.textContent = randomFrom(pauseCopies);
+
+                    pauseScreen.classList.add('is-open');
+                    pauseScreen.setAttribute('aria-hidden', 'false');
                 }
             }, 1000);
         }
 
-        function triggerMindfulPause() {
-            focusView.style.display = 'none';
-            pauseView.style.display = 'flex';
+        function closeFocus() {
+            clearInterval(timerId);
+            focusScreen.classList.remove('is-open');
+            focusScreen.setAttribute('aria-hidden', 'true');
         }
 
-        document.getElementById('btnCancelFocus').addEventListener('click', () => {
-            clearInterval(timerInterval);
-            focusView.style.display = 'none';
+        function closePause() {
+            pauseScreen.classList.remove('is-open');
+            pauseScreen.setAttribute('aria-hidden', 'true');
+        }
+
+        /* ═══════════════════════════════════════════
+           DRAG & DROP (Long-press to drag, scroll-friendly)
+           ═══════════════════════════════════════════ */
+        const HOLD_DELAY = 300; // ms to hold before drag activates
+
+        function attachDragBehavior(card) {
+            let startX = 0, startY = 0;
+            let holdTimer = null;
+            let dragReady = false;  // true after long-press fires
+            let pointerId = null;
+
+            card.addEventListener('pointerdown', (e) => {
+                if (focusScreen.classList.contains('is-open') ||
+                    pauseScreen.classList.contains('is-open') ||
+                    confirmOverlay.classList.contains('is-open')) return;
+
+                startX = e.clientX;
+                startY = e.clientY;
+                pointerId = e.pointerId;
+                dragging = card;
+                hasDragged = false;
+                dragReady = false;
+
+                // Start long-press timer — do NOT capture pointer yet
+                clearTimeout(holdTimer);
+                holdTimer = setTimeout(() => {
+                    if (dragging !== card) return;
+                    dragReady = true;
+                    // Now capture pointer & lock touch-action
+                    try { card.setPointerCapture(pointerId); } catch(ex) {}
+                    card.style.touchAction = 'none';
+                    const rect = card.getBoundingClientRect();
+                    dragOffsetX = startX - rect.left;
+                    dragOffsetY = startY - rect.top;
+                    card.style.width = `${rect.width}px`;
+                    card.style.transition = 'none';
+                    // Visual feedback: slight lift
+                    card.style.transform = 'scale(1.03)';
+                    card.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.55), 0 20px 40px rgba(52,64,84,0.14)';
+                    haptic(25);
+                }, HOLD_DELAY);
+            });
+
+            card.addEventListener('pointermove', (e) => {
+                if (dragging !== card) return;
+
+                // If drag not yet activated, check if user is scrolling
+                if (!dragReady) {
+                    const dx = Math.abs(e.clientX - startX);
+                    const dy = Math.abs(e.clientY - startY);
+                    if (dx > 8 || dy > 8) {
+                        // User is scrolling — cancel hold, let browser handle it
+                        clearTimeout(holdTimer);
+                        dragging = null;
+                    }
+                    return;
+                }
+
+                // Drag is active — move the card
+                if (!hasDragged) {
+                    hasDragged = true;
+                    const rect = card.getBoundingClientRect();
+                    card.classList.add('task-dragging');
+                    card.style.left = `${rect.left}px`;
+                    card.style.top = `${rect.top}px`;
+                    card.style.margin = '0';
+                }
+                card.style.transform = `translate(${e.clientX - dragOffsetX}px, ${e.clientY - dragOffsetY}px) rotate(-2deg) scale(1.05)`;
+
+                const vr = vortex.getBoundingClientRect();
+                const inV = e.clientX >= vr.left && e.clientX <= vr.right && e.clientY >= vr.top && e.clientY <= vr.bottom;
+                vortex.classList.toggle('is-active', inV);
+            });
+
+            card.addEventListener('pointerup', (e) => {
+                clearTimeout(holdTimer);
+                if (dragging !== card) return;
+                dragging = null;
+                card.style.touchAction = '';
+
+                if (!dragReady || !hasDragged) {
+                    // TAP → show confirm
+                    resetCard(card);
+                    showConfirm(card);
+                    return;
+                }
+
+                const vr = vortex.getBoundingClientRect();
+                vortex.classList.remove('is-active');
+                const inV = e.clientX >= vr.left && e.clientX <= vr.right && e.clientY >= vr.top && e.clientY <= vr.bottom;
+
+                if (inV) {
+                    haptic(60);
+                    openFocus(card);
+                    card.style.opacity = '0';
+                    card.style.transform += ' scale(0.8)';
+                    setTimeout(() => {
+                        card.remove();
+                        updateCounters();
+                    }, 200);
+                    return;
+                }
+
+                // Snap back with spring animation
+                card.style.transition = 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+                resetCard(card);
+            });
+
+            card.addEventListener('pointercancel', () => {
+                clearTimeout(holdTimer);
+                if (dragging !== card) return;
+                card.style.touchAction = '';
+                resetCard(card);
+                dragging = null;
+            });
+        }
+
+        function resetCard(card) {
+            card.classList.remove('task-dragging');
+            card.style.left = '';
+            card.style.top = '';
+            card.style.width = '';
+            card.style.margin = '';
+            card.style.transform = '';
+            card.style.opacity = '';
+            requestAnimationFrame(() => {
+                card.style.transition = 'transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 280ms ease, opacity 200ms ease';
+            });
+        }
+
+        /* ═══════════════════════════════════════════
+           EVENT BINDINGS
+           ═══════════════════════════════════════════ */
+        $$('.task-card').forEach(attachDragBehavior);
+
+        slider.addEventListener('input', updateSummary);
+        taskInput.addEventListener('input', updateSummary);
+        quickNext.addEventListener('click', nextQuickStep);
+
+        quickBack.addEventListener('click', () => {
+            if (step === 1) {
+                taskInput.blur();
+                return;
+            }
+            setStep(step - 1);
         });
 
-        document.getElementById('btnEndPause').addEventListener('click', () => {
-            pauseView.style.display = 'none';
+        openFAB.addEventListener('click', () => {
+            setStep(1);
+            // Scroll to quick-add panel
+            const quickPanel = document.querySelector('.quick-add-panel');
+            quickPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => taskInput.focus(), 350);
         });
+
+        endFocusBtn.addEventListener('click', closeFocus);
+        backBtn.addEventListener('click', closePause);
+
+        /* ═══════════════════════════════════════════
+           INIT
+           ═══════════════════════════════════════════ */
+        updateSummary();
+        setStep(1);
+        updateCounters();
     </script>
 </body>
 </html>
